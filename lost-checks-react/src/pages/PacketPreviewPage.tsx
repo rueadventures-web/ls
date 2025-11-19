@@ -246,7 +246,7 @@ export function PacketPreviewPage() {
                         }}
                       />
                       <Button variant="primary" onClick={handlePostComment}>
-                        Post &gt;
+                        Post 
                       </Button>
                     </div>
                     <small className="text-muted">(Internal use only - not visible to requestors)</small>

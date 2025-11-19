@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Form, Button, Toast, ToastContainer } from 'react-bootstrap';
+import { Form, Button, Toast, ToastContainer, Card } from 'react-bootstrap';
 import { Layout } from '../components/Layout';
 import { CheckForm } from '../components/CheckForm';
 import { SuccessModal } from '../components/SuccessModal';
@@ -75,10 +75,34 @@ export function AffidavitFormPage() {
 
   return (
     <Layout>
-      <h1 className="mb-4">New Affidavit Request</h1>
-      <Form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <h3 className="mb-3">Participant Info</h3>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <h1 
+          className="mb-4"
+          style={{
+            fontSize: '2.5rem',
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: '2rem'
+          }}
+        >
+          New Affidavit Request
+        </h1>
+        <Card className="shadow-sm mb-4" style={{ border: 'none', borderRadius: '12px' }}>
+          <Card.Body style={{ padding: '2rem' }}>
+            <Form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <h3 
+                  className="mb-4"
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    paddingBottom: '1rem',
+                    borderBottom: '2px solid #e2e8f0'
+                  }}
+                >
+                  Participant Info
+                </h3>
           <Form.Group className="mb-3">
             <Form.Label>Participant Name</Form.Label>
             <Form.Control
@@ -143,9 +167,21 @@ export function AffidavitFormPage() {
           </Form.Group>
         </div>
 
-        <div className="mb-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3>Check Information</h3>
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h3
+                    style={{
+                      fontSize: '1.5rem',
+                      fontWeight: 600,
+                      color: '#1e293b',
+                      paddingBottom: '1rem',
+                      borderBottom: '2px solid #e2e8f0',
+                      flex: 1,
+                      marginRight: '1rem'
+                    }}
+                  >
+                    Check Information
+                  </h3>
             {formData.checks.length < 3 && (
               <Button variant="outline-primary" onClick={handleAddCheck}>
                 Add Check
@@ -164,23 +200,36 @@ export function AffidavitFormPage() {
           ))}
         </div>
 
-        <div className="d-flex gap-3">
-          <Button
-            variant="secondary"
-            onClick={handleSaveDraft}
-            disabled={saveDraftMutation.isPending}
-          >
-            {saveDraftMutation.isPending ? 'Saving...' : 'Save Draft'}
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={submitMutation.isPending}
-          >
-            {submitMutation.isPending ? 'Submitting...' : 'Submit Request'}
-          </Button>
+                <div className="d-flex gap-3 mt-4" style={{ paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                  <Button
+                    variant="secondary"
+                    onClick={handleSaveDraft}
+                    disabled={saveDraftMutation.isPending}
+                    style={{
+                      borderRadius: '8px',
+                      fontWeight: 500,
+                      padding: '0.75rem 2rem'
+                    }}
+                  >
+                    {saveDraftMutation.isPending ? 'Saving...' : 'Save Draft'}
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={submitMutation.isPending}
+                    style={{
+                      borderRadius: '8px',
+                      fontWeight: 500,
+                      padding: '0.75rem 2rem'
+                    }}
+                  >
+                    {submitMutation.isPending ? 'Submitting...' : 'Submit Request'}
+                  </Button>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
         </div>
-      </Form>
 
       <SuccessModal
         show={showSuccessModal}
