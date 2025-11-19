@@ -101,6 +101,8 @@ export function PacketPreviewModal({ show, onClose, data }: PacketPreviewModalPr
                   <th>Date</th>
                   <th>Amount</th>
                   <th>Bank</th>
+                  <th>Issue Date</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,6 +112,31 @@ export function PacketPreviewModal({ show, onClose, data }: PacketPreviewModalPr
                     <td>{check.date}</td>
                     <td>${check.amount}</td>
                     <td>{check.bank}</td>
+                    <td>{check.issue_date}</td>
+                    <td>
+                      <span
+                        style={{
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.875rem',
+                          fontWeight: 500,
+                          backgroundColor:
+                            check.status === 'Issued'
+                              ? '#fef3c7'
+                              : check.status === 'Paid'
+                              ? '#d1fae5'
+                              : '#e5e7eb',
+                          color:
+                            check.status === 'Issued'
+                              ? '#92400e'
+                              : check.status === 'Paid'
+                              ? '#065f46'
+                              : '#374151',
+                        }}
+                      >
+                        {check.status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

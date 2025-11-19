@@ -88,15 +88,15 @@ export function PacketDownloadButton({ data, disabled }: PacketDownloadButtonPro
 
       // Table header
       const tableStartY = yPosition;
-      const colWidths = [120, 100, 100, 150];
-      const headers = ['Check Number', 'Date', 'Amount', 'Bank'];
+      const colWidths = [90, 80, 80, 120, 90, 70];
+      const headers = ['Check #', 'Date', 'Amount', 'Bank', 'Issue Date', 'Status'];
       let xPos = margin;
 
       headers.forEach((header, i) => {
         page.drawText(header, {
           x: xPos,
           y: yPosition,
-          size: 10,
+          size: 9,
           font: helveticaBoldFont,
           color: rgb(0, 0, 0),
         });
@@ -119,7 +119,7 @@ export function PacketDownloadButton({ data, disabled }: PacketDownloadButtonPro
         page.drawText(check.check_number, {
           x: xPos,
           y: yPosition,
-          size: 10,
+          size: 9,
           font: helveticaFont,
           color: rgb(0, 0, 0),
         });
@@ -127,7 +127,7 @@ export function PacketDownloadButton({ data, disabled }: PacketDownloadButtonPro
         page.drawText(check.date, {
           x: xPos,
           y: yPosition,
-          size: 10,
+          size: 9,
           font: helveticaFont,
           color: rgb(0, 0, 0),
         });
@@ -135,7 +135,7 @@ export function PacketDownloadButton({ data, disabled }: PacketDownloadButtonPro
         page.drawText(`$${check.amount}`, {
           x: xPos,
           y: yPosition,
-          size: 10,
+          size: 9,
           font: helveticaFont,
           color: rgb(0, 0, 0),
         });
@@ -143,7 +143,23 @@ export function PacketDownloadButton({ data, disabled }: PacketDownloadButtonPro
         page.drawText(check.bank, {
           x: xPos,
           y: yPosition,
-          size: 10,
+          size: 9,
+          font: helveticaFont,
+          color: rgb(0, 0, 0),
+        });
+        xPos += colWidths[3];
+        page.drawText(check.issue_date, {
+          x: xPos,
+          y: yPosition,
+          size: 9,
+          font: helveticaFont,
+          color: rgb(0, 0, 0),
+        });
+        xPos += colWidths[4];
+        page.drawText(check.status, {
+          x: xPos,
+          y: yPosition,
+          size: 9,
           font: helveticaFont,
           color: rgb(0, 0, 0),
         });

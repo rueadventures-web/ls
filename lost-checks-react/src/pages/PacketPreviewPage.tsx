@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Container, Button, Spinner, Alert, Row, Col, Table, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Card, Container, Button, Spinner, Alert, Row, Col, Table, Form, OverlayTrigger, Tooltip, Badge, ListGroup } from 'react-bootstrap';
 import { Layout } from '../components/Layout';
 import { PacketPreviewModal } from '../components/PacketPreviewModal';
 import { PacketDownloadButton } from '../components/PacketDownloadButton';
-import { useAffidavitPacketQuery } from '../api/useAffidavitPacketQuery';
+import { useAffidavitPacketQuery, type PacketType } from '../api/useAffidavitPacketQuery';
+import { checkBusinessRules, getPacketContents } from '../utils/packetUtils';
 
 export function PacketPreviewPage() {
   const { id } = useParams<{ id: string }>();
@@ -15,11 +16,23 @@ export function PacketPreviewPage() {
 
   // Desk Actions State
   const [scssReviewRequired, setScssReviewRequired] = useState(false);
-  const [packetType, setPacketType] = useState('');
+  const [packetType, setPacketType] = useState<PacketType | ''>('');
   const [internalComments, setInternalComments] = useState('');
   const [newInternalComment, setNewInternalComment] = useState('');
   const [lcdAction, setLcdAction] = useState('');
   const [lcdActionComment, setLcdActionComment] = useState('');
+
+  // Business rules check
+  const businessRules = useMemo(() => {
+    if (!data) return null;
+    return checkBusinessRules(data);
+  }, [data]);
+
+  // Get packet contents based on selected type
+  const packetContents = useMemo(() => {
+    if (!packetType || !data) return [];
+    return getPacketContents(packetType as PacketType, data.checks.length);
+  }, [packetType, data]);
 
   const handlePostComment = () => {
     if (newInternalComment.trim()) {
@@ -29,11 +42,22 @@ export function PacketPreviewPage() {
   };
 
   const handleGeneratePacket = () => {
-    if (packetType) {
-      alert(`Generating ${packetType} packet...`);
-    } else {
+    if (!packetType) {
       alert('Please select a packet type first.');
+      return;
     }
+    
+    if (businessRules?.hasError) {
+      alert(businessRules.errorMessage);
+      return;
+    }
+
+    // Simulate email notification if priority
+    if (businessRules?.shouldNotifyEmail) {
+      console.log('Email notification sent to Lost Checks mailbox - Priority: Urgent stop payment needed');
+    }
+
+    alert(`Generating ${packetType} packet...`);
   };
 
   const handleUpdateRequest = () => {
@@ -81,8 +105,43 @@ export function PacketPreviewPage() {
             </Alert>
           )}
 
-          {data && (
+          {data && businessRules && (
             <>
+              {/* Business Rules Error */}
+              {businessRules.hasError && (
+                <Alert variant="danger" className="mb-4" style={{ borderRadius: '12px', border: 'none' }}>
+                  <Alert.Heading>Processing Error</Alert.Heading>
+                  <p className="mb-0">{businessRules.errorMessage}</p>
+                </Alert>
+              )}
+
+              {/* Priority Flag */}
+              {businessRules.isPriority && (
+                <Alert variant="warning" className="mb-4" style={{ borderRadius: '12px', border: 'none' }}>
+                  <div className="d-flex align-items-center">
+                    <Badge bg="danger" className="me-2" style={{ fontSize: '0.875rem', padding: '0.5rem 0.75rem' }}>
+                      PRIORITY
+                    </Badge>
+                    <div>
+                      <strong>Urgent Stop Payment Required</strong>
+                      <p className="mb-0" style={{ fontSize: '0.9rem' }}>
+                        Check status is "Issued". Email notification sent to Lost Checks mailbox.
+                      </p>
+                    </div>
+                  </div>
+                </Alert>
+              )}
+
+              {/* Auto Messages */}
+              {businessRules.autoMessages.length > 0 && (
+                <Alert variant="info" className="mb-4" style={{ borderRadius: '12px', border: 'none' }}>
+                  <Alert.Heading style={{ fontSize: '1.1rem' }}>Notice</Alert.Heading>
+                  {businessRules.autoMessages.map((msg, idx) => (
+                    <p key={idx} className="mb-0">{msg}</p>
+                  ))}
+                </Alert>
+              )}
+
               {/* Affidavit Information Card */}
               <Card className="mb-4 shadow-sm">
                 <Card.Header className="bg-white">
@@ -143,6 +202,8 @@ export function PacketPreviewPage() {
                         <th>Date</th>
                         <th>Amount</th>
                         <th>Bank</th>
+                        <th>Issue Date</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -152,6 +213,21 @@ export function PacketPreviewPage() {
                           <td>{check.date}</td>
                           <td>${check.amount}</td>
                           <td>{check.bank}</td>
+                          <td>{check.issue_date}</td>
+                          <td>
+                            <Badge
+                              bg={
+                                check.status === 'Issued'
+                                  ? 'warning'
+                                  : check.status === 'Paid'
+                                  ? 'success'
+                                  : 'secondary'
+                              }
+                              style={{ padding: '0.5rem 0.75rem', borderRadius: '6px' }}
+                            >
+                              {check.status}
+                            </Badge>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -198,7 +274,7 @@ export function PacketPreviewPage() {
                           <Form.Label>Packet Type</Form.Label>
                           <Form.Select
                             value={packetType}
-                            onChange={(e) => setPacketType(e.target.value)}
+                            onChange={(e) => setPacketType(e.target.value as PacketType | '')}
                           >
                             <option value="">- Select -</option>
                             <option value="Affidavit">Affidavit</option>
@@ -212,7 +288,7 @@ export function PacketPreviewPage() {
                         <Button
                           variant="secondary"
                           onClick={handleGeneratePacket}
-                          disabled={!packetType}
+                          disabled={!packetType || businessRules.hasError}
                           style={{ minWidth: '150px' }}
                         >
                           Generate Packet
@@ -220,6 +296,31 @@ export function PacketPreviewPage() {
                       </Col>
                     </Row>
                   </div>
+
+                  {/* Packet Contents Preview */}
+                  {packetType && packetContents.length > 0 && (
+                    <div className="mb-4">
+                      <Form.Label style={{ fontWeight: 600, marginBottom: '0.75rem' }}>
+                        Packet Contents:
+                      </Form.Label>
+                      <ListGroup>
+                        {packetContents.map((content, idx) => (
+                          <ListGroup.Item
+                            key={idx}
+                            style={{
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              marginBottom: '0.5rem',
+                              padding: '0.75rem 1rem',
+                              backgroundColor: '#f8fafc'
+                            }}
+                          >
+                            {content}
+                          </ListGroup.Item>
+                        ))}
+                      </ListGroup>
+                    </div>
+                  )}
 
                   {/* Internal Comments/Messages */}
                   <div className="mb-4">
@@ -246,7 +347,7 @@ export function PacketPreviewPage() {
                         }}
                       />
                       <Button variant="primary" onClick={handlePostComment}>
-                        Post 
+                        Post &gt;
                       </Button>
                     </div>
                     <small className="text-muted">(Internal use only - not visible to requestors)</small>
