@@ -1,10 +1,13 @@
-import { Tabs, Tab, Table, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Tabs, Tab, Table, Badge, Spinner, Alert, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { useDraftsQuery } from '../api/useDraftsQuery';
 import { useSubmittedQuery } from '../api/useRequestsQuery';
 import { useCompletedQuery } from '../api/useRequestsQuery';
 
-function RequestTable({ requests }: { requests: any[] }) {
+function RequestTable({ requests, showPacketLink = false }: { requests: any[]; showPacketLink?: boolean }) {
+  const navigate = useNavigate();
+
   if (requests.length === 0) {
     return <p className="text-muted">No requests found.</p>;
   }
@@ -40,9 +43,19 @@ function RequestTable({ requests }: { requests: any[] }) {
             </td>
             <td>{request.updated_at}</td>
             <td>
-              <button className="btn btn-sm btn-outline-primary" disabled>
-                Open
-              </button>
+              {showPacketLink ? (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => navigate(`/affidavit/packet-preview/${request.id}`)}
+                >
+                  View Packet
+                </Button>
+              ) : (
+                <Button variant="outline-secondary" size="sm" disabled>
+                  Open
+                </Button>
+              )}
             </td>
           </tr>
         ))}
@@ -88,13 +101,13 @@ export function RequestsDashboard() {
       ) : (
         <Tabs defaultActiveKey="drafts" className="mb-3">
           <Tab eventKey="drafts" title="Drafts">
-            <RequestTable requests={drafts || []} />
+            <RequestTable requests={drafts || []} showPacketLink={false} />
           </Tab>
           <Tab eventKey="submitted" title="Submitted">
-            <RequestTable requests={submitted || []} />
+            <RequestTable requests={submitted || []} showPacketLink={true} />
           </Tab>
           <Tab eventKey="completed" title="Completed">
-            <RequestTable requests={completed || []} />
+            <RequestTable requests={completed || []} showPacketLink={true} />
           </Tab>
         </Tabs>
       )}

@@ -8,6 +8,7 @@ import { LandingPage } from './pages/LandingPage'
 import { ServicesPage } from './pages/ServicesPage'
 import { AffidavitFormPage } from './pages/AffidavitFormPage'
 import { RequestsDashboard } from './pages/RequestsDashboard'
+import { PacketPreviewPage } from './pages/PacketPreviewPage'
 
 const queryClient = new QueryClient()
 
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/" element={<LandingPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/affidavit/new" element={<AffidavitFormPage />} />
+          <Route path="/affidavit/packet-preview/:id" element={<PacketPreviewPage />} />
           <Route path="/requests" element={<RequestsDashboard />} />
         </Routes>
       </QueryClientProvider>
