@@ -18,6 +18,7 @@ export interface AffidavitFormData {
   affidavitReason: 'Lost' | 'Stolen' | 'Damaged' | 'Fraud';
   dateReported: string;
   checks: Check[];
+  docusignRequested: boolean;
 }
 
 export interface Request {

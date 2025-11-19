@@ -22,6 +22,7 @@ export function AffidavitFormPage() {
     affidavitReason: 'Lost',
     dateReported: '',
     checks: [{ ...initialCheck }],
+    docusignRequested: false,
   });
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -127,6 +128,17 @@ export function AffidavitFormPage() {
                 setFormData({ ...formData, dateReported: e.target.value })
               }
               required
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Check
+              type="checkbox"
+              id="docusign-requested"
+              label="Docusign requested"
+              checked={formData.docusignRequested}
+              onChange={(e) =>
+                setFormData({ ...formData, docusignRequested: e.target.checked })
+              }
             />
           </Form.Group>
         </div>
